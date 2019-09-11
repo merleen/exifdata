@@ -35,13 +35,13 @@ public abstract class ExifData {
 
         String ending = absolutePath.substring( absolutePath.lastIndexOf( '.' ) );
         String path;
-        if( absolutePath.lastIndexOf( "/" ) > 1 ) {
+        if( absolutePath.lastIndexOf( '/' ) > 1 ) {
 
-            path = absolutePath.substring( 0, absolutePath.lastIndexOf( "/" ) + 1 );
+            path = absolutePath.substring( 0, absolutePath.lastIndexOf( '/' ) + 1 );
         }
         else {
-            path = absolutePath.substring( 0, absolutePath.lastIndexOf( "\\" ) + 1 );
-            path = path.replace( "\\", "/" );
+            path = absolutePath.substring( 0, absolutePath.lastIndexOf( '\\' ) + 1 );
+            path = path.replace( '\\', '/' );
         }
 
         // build new name
@@ -90,7 +90,7 @@ public abstract class ExifData {
 
     public String renameFileWithNumber( String filenameForRenaming ) {
 
-        String filename = filenameForRenaming.substring( filenameForRenaming.lastIndexOf( "." ) - 15 );
+        String filename = filenameForRenaming.substring( filenameForRenaming.lastIndexOf( '.' ) - 15 );
         String path = filenameForRenaming.replace( filename, "" );
         String ending = filename.substring( filename.lastIndexOf( '.' ) );
         filename = filename.replace( ending, "" );
