@@ -1,6 +1,5 @@
 package exifdata.exif.renamer;
 
-
 import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.drew.imaging.jpeg.JpegProcessingException;
 import com.drew.imaging.jpeg.JpegSegmentMetadataReader;
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +22,9 @@ public class ExifRenamerJpeg extends ExifRenamer {
     private final Logger l = LoggerFactory.getLogger( ExifRenamerJpeg.class );
 
     // We are only interested in handling
-    private final Iterable<JpegSegmentMetadataReader> readers = Arrays.asList( new ExifReader() );
+    private final Iterable<JpegSegmentMetadataReader> readers = Collections.singletonList( new ExifReader() );
 
-
-    ExifDataJpg exifDataJpg = new ExifDataJpg();
+    private final ExifDataJpg exifDataJpg = new ExifDataJpg();
 
     public void renameFiles( List<File> filesByType ) {
 
@@ -38,7 +36,6 @@ public class ExifRenamerJpeg extends ExifRenamer {
             try {
                 Metadata metadata = JpegMetadataReader.readMetadata( currentFile, this.readers );
 
-
                 Map<Integer, String> tags = this.exifDataJpg.getTagsForCurrentFile(
                         metadata.getDirectories()
                         , ExifData.DATE_TIME_TAKEN_JPEG, ExifData.DATE_TIME_TAKEN_IMG );
@@ -47,8 +44,6 @@ public class ExifRenamerJpeg extends ExifRenamer {
                 String newFileName = this.exifDataJpg.createNewFileName( specificTagValue, currentFile.getAbsolutePath() );
 
                 FileUtils.moveFile( currentFile, FileUtils.getFile( newFileName ) );
-
-                String s = "";
             }
             catch( JpegProcessingException | IOException e ) {
                 this.l.error( e.getMessage(), e );

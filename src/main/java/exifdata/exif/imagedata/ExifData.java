@@ -2,6 +2,7 @@ package exifdata.exif.imagedata;
 
 import com.drew.metadata.Directory;
 import com.drew.metadata.Tag;
+import exifdata.exif.files.ExifFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,13 +14,13 @@ import java.util.Map;
 
 public abstract class ExifData {
 
-    Logger l = LoggerFactory.getLogger( ExifData.class );
+    private final Logger l = LoggerFactory.getLogger( ExifData.class );
 
     public static final int DATE_TIME_TAKEN_JPEG = 306;
 
     public static final int DATE_TIME_TAKEN_IMG = 36868;
 
-    Map<Integer, String> tags = new HashMap<>();
+    private final Map<Integer, String> tags = new HashMap<>();
 
     /**
      * for getting the tag value depending on file-type
@@ -34,15 +35,7 @@ public abstract class ExifData {
     public String createNewFileName( String tagValue, String absolutePath ) {
 
         String ending = absolutePath.substring( absolutePath.lastIndexOf( '.' ) );
-        String path;
-        if( absolutePath.lastIndexOf( '/' ) > 1 ) {
-
-            path = absolutePath.substring( 0, absolutePath.lastIndexOf( '/' ) + 1 );
-        }
-        else {
-            path = absolutePath.substring( 0, absolutePath.lastIndexOf( '\\' ) + 1 );
-            path = path.replace( '\\', '/' );
-        }
+        String path = ExifFiles.getActiveDir();
 
         // build new name
         String newFileName = tagValue.replace( ":", "" );
@@ -60,7 +53,7 @@ public abstract class ExifData {
     }
 
 
-    protected String getTagValue( Integer... tagIDs ) {
+    String getTagValue( Integer... tagIDs ) {
 
         for( Integer tagID : tagIDs ) {
             if( this.tags.get( tagID ) != null ) {
@@ -88,11 +81,12 @@ public abstract class ExifData {
         return this.tags;
     }
 
-    public String renameFileWithNumber( String filenameForRenaming ) {
+    private String renameFileWithNumber( String filenameForRenaming ) {
 
+        String path = ExifFiles.getActiveDir();
 
-        String filename = filenameForRenaming.substring( filenameForRenaming.lastIndexOf( '.' ) - 15 );
-        String path = filenameForRenaming.replace( filename, "" );
+        String filename =
+                filenameForRenaming.replace( path, "" );
         String ending = filename.substring( filename.lastIndexOf( '.' ) );
         filename = filename.replace( ending, "" );
 
@@ -101,9 +95,7 @@ public abstract class ExifData {
 
             Integer integer = Integer.valueOf( filename.substring( filename.lastIndexOf( '-' ) + 1 ) );
             String datetimestamp = filename.substring( 0, filename.lastIndexOf( '-' ) );
-            filename = datetimestamp + integer + 1;
-
-            filename = path + filename + ending;
+            filename = datetimestamp + "-" + ( integer + 1 );
         }
         // first renaming
         else {
@@ -113,9 +105,9 @@ public abstract class ExifData {
         String completeFilename = path + filename + ending;
 
         if( new File( completeFilename ).exists() ) {
-            renameFileWithNumber( completeFilename );
+            return renameFileWithNumber( completeFilename );
         }
 
-        return path + filename + ending;
+        return completeFilename;
     }
 }

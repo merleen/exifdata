@@ -12,16 +12,8 @@ public abstract class ExifRenamer {
 
     private static final Logger l = LoggerFactory.getLogger( ExifRenamer.class );
 
-    protected static File outputDir;
-
-
     public abstract void renameFiles( List<File> filesByType );
 
-
-    public static void setOutputDir( File outputDir ) {
-
-        ExifRenamer.outputDir = outputDir;
-    }
 
     public static void processRenamingForAllFileTypes( List<File> filesInDir, List<String> foundFileTypes ) {
 
@@ -42,9 +34,9 @@ public abstract class ExifRenamer {
     }
 
 
-    public List<File> getFilesByType( List<File> fileList, String... types ) {
+    private List<File> getFilesByType( List<File> fileList, String... types ) {
 
-        List<File> filesByType = new ArrayList();
+        List<File> filesByType = new ArrayList<>();
 
         for( String type : types ) {
 

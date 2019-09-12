@@ -12,34 +12,35 @@ public class ExifFiles {
 
     private static final Logger l = LoggerFactory.getLogger( ExifFiles.class );
 
+    private File outputDir;
+
+    private static String activeDir;
+
     private List<File> allFilesInDir;
 
-    private List<String> foundFileTypes;
+    private List<String> foundFileTypes = new ArrayList<>();
 
     /**
      * collect file-types by file-name-ending
      *
-     * @param filesInDir all files in the required directory
      * @return a list with distinct file-types
      */
-    public List<String> getFileTypesDistinct( List<File> filesInDir ) {
+    private List<String> getFileTypesDistinct() {
 
-        List<String> foundFileTypes = new ArrayList<>();
-
-        for( File file : filesInDir ) {
+        for( File file : this.allFilesInDir ) {
             if( file.isFile() ) {
 
                 String name = file.getName();
-                String filetype = name.substring( name.lastIndexOf( "." ) + 1 );
-                if( !foundFileTypes.contains( filetype ) ) {
-                    foundFileTypes.add( filetype );
+                String filetype = name.substring( name.lastIndexOf( '.' ) + 1 );
+                if( !this.foundFileTypes.contains( filetype ) ) {
+                    this.foundFileTypes.add( filetype );
                 }
             }
         }
 
-        l.info( "  found file types: {}", foundFileTypes.toString() );
+        l.info( "  found file types: {}", this.foundFileTypes );
 
-        return foundFileTypes;
+        return this.foundFileTypes;
     }
 
     /**
@@ -48,7 +49,7 @@ public class ExifFiles {
      * @param dir the directory to be read
      * @return all files from directory
      */
-    public List<File> readAllFilesInDir( String dir ) {
+    private List<File> readAllFilesInDir( String dir ) {
 
         File directory = new File( dir );
         List<File> files = Arrays.asList( directory.listFiles() );
@@ -59,11 +60,10 @@ public class ExifFiles {
     }
 
     /**
-     * processes all exif-files in the given directory
-     *
-     * @param activeDir the directory to be processed for exif-files
+     * processes all exif-files in the given directory</br>
+     * Note: this does not contain renaming, only collect files and types
      */
-    public void processFiles( String activeDir ) {
+    public void processFiles() {
 
         // read all files in dir
         l.info( "read all files from {}", activeDir );
@@ -71,7 +71,7 @@ public class ExifFiles {
 
         // all available file-types distinct
         l.info( "get file-types distinct" );
-        this.foundFileTypes = getFileTypesDistinct( this.allFilesInDir );
+        this.foundFileTypes = getFileTypesDistinct();
     }
 
     public List<File> getAllFilesInDir() {
@@ -82,5 +82,33 @@ public class ExifFiles {
     public List<String> getFoundFileTypes() {
 
         return this.foundFileTypes;
+    }
+
+    public void createOutputDir() {
+
+        String outputDirName = activeDir + "output\\";
+        l.info( "  create output-directory {}", outputDirName );
+        this.outputDir = new File( outputDirName );
+        if( !this.outputDir.exists() ) {
+
+            if( !( this.outputDir.mkdir() ) ) {
+                throw new IllegalArgumentException( "could not create output-dir: " + outputDirName );
+            }
+        }
+    }
+
+    public File getOutputDir() {
+
+        return this.outputDir;
+    }
+
+    public static String getActiveDir() {
+
+        return activeDir;
+    }
+
+    public static void setActiveDir( String activeDir ) {
+
+        ExifFiles.activeDir = activeDir;
     }
 }
