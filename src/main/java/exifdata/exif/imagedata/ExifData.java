@@ -90,26 +90,30 @@ public abstract class ExifData {
 
     public String renameFileWithNumber( String filenameForRenaming ) {
 
+
         String filename = filenameForRenaming.substring( filenameForRenaming.lastIndexOf( '.' ) - 15 );
         String path = filenameForRenaming.replace( filename, "" );
         String ending = filename.substring( filename.lastIndexOf( '.' ) );
         filename = filename.replace( ending, "" );
 
         // file already renamed
-        if( filename.indexOf( '-' ) >= 0 ) {
+        if( filename.indexOf( '-' ) >= 14 ) {
 
             Integer integer = Integer.valueOf( filename.substring( filename.lastIndexOf( '-' ) + 1 ) );
-            String substring = filename.substring( 0, filename.lastIndexOf( '-' ) );
-            filename = substring + integer + 1;
+            String datetimestamp = filename.substring( 0, filename.lastIndexOf( '-' ) );
+            filename = datetimestamp + integer + 1;
 
             filename = path + filename + ending;
-            if( new File( filename ).exists() ) {
-                renameFileWithNumber( filename );
-            }
         }
         // first renaming
         else {
             filename += "-1";
+        }
+
+        String completeFilename = path + filename + ending;
+
+        if( new File( completeFilename ).exists() ) {
+            renameFileWithNumber( completeFilename );
         }
 
         return path + filename + ending;

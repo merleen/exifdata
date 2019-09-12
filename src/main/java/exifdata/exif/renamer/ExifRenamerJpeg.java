@@ -46,11 +46,6 @@ public class ExifRenamerJpeg extends ExifRenamer {
                 String specificTagValue = this.exifDataJpg.getSpecificTagValue( currentFile, tags );
                 String newFileName = this.exifDataJpg.createNewFileName( specificTagValue, currentFile.getAbsolutePath() );
 
-//                Files.createFile( Paths.get( newFileName ) );
-//
-//                File file = new File( newFileName );
-//                file.createNewFile();
-
                 FileUtils.moveFile( currentFile, FileUtils.getFile( newFileName ) );
 
                 String s = "";
