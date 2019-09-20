@@ -1,15 +1,17 @@
 package exifdata;
 
-import exifdata.exif.files.ExifFiles;
-import exifdata.exif.renamer.ExifRenamer;
+import exifdata.exif.ExifFiles;
+import exifdata.exif.ExifRenamer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.text.ParseException;
 
 public class ExifDataApp {
 
     private static final Logger l = LoggerFactory.getLogger( ExifDataApp.class );
 
-    public static void main( String[] args ) {
+    public static void main( String[] args ) throws ParseException {
 
         if( args.length != 1 ) {
             throw new IllegalArgumentException( "args length = 1 required, the path to the directory to be read" );
@@ -28,10 +30,10 @@ public class ExifDataApp {
 
         l.info( "read files" );
         ExifFiles exifFiles = new ExifFiles();
-        exifFiles.processFiles();
-        exifFiles.createOutputDir();
+        exifFiles.preProcessFiles();
 
         l.info( "rename all files" );
-        ExifRenamer.processRenamingForAllFileTypes( exifFiles.getAllFilesInDir(), exifFiles.getFoundFileTypes() );
+        ExifRenamer exifRenamer = new ExifRenamer();
+        exifRenamer.processRenamingForAllFileTypes( exifFiles.getAllFilesInDir(), exifFiles.getFoundFileTypes() );
     }
 }

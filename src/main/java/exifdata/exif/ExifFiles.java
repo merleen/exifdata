@@ -1,4 +1,4 @@
-package exifdata.exif.files;
+package exifdata.exif;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +63,7 @@ public class ExifFiles {
      * processes all exif-files in the given directory</br>
      * Note: this does not contain renaming, only collect files and types
      */
-    public void processFiles() {
+    public void preProcessFiles() {
 
         // read all files in dir
         l.info( "read all files from {}", activeDir );
@@ -89,11 +89,8 @@ public class ExifFiles {
         String outputDirName = activeDir + "output\\";
         l.info( "  create output-directory {}", outputDirName );
         this.outputDir = new File( outputDirName );
-        if( !this.outputDir.exists() ) {
-
-            if( !( this.outputDir.mkdir() ) ) {
-                throw new IllegalArgumentException( "could not create output-dir: " + outputDirName );
-            }
+        if( !this.outputDir.exists() && !( this.outputDir.mkdir() ) ) {
+            throw new IllegalArgumentException( "could not create output-dir: " + outputDirName );
         }
     }
 

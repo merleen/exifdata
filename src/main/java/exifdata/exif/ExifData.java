@@ -1,35 +1,77 @@
-package exifdata.exif.imagedata;
+package exifdata.exif;
 
 import com.drew.metadata.Directory;
 import com.drew.metadata.Tag;
-import exifdata.exif.files.ExifFiles;
+import static java.util.Arrays.asList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Arrays;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ExifData {
+public class ExifData {
 
     private final Logger l = LoggerFactory.getLogger( ExifData.class );
 
     public static final int DATE_TIME_TAKEN_JPEG = 306;
 
+    public static final int DATE_TIME_CREATED = 3;
+
     public static final int DATE_TIME_TAKEN_IMG = 36868;
 
     private final Map<Integer, String> tags = new HashMap<>();
 
+    private static final Map<String, String> months = new HashMap<>();
+
+    private final SimpleDateFormat FORMAT = new SimpleDateFormat( "yyyyMMdd HHmmss" );
+
+    static {
+        months.put( "Jan", "01" );
+        months.put( "Feb", "02" );
+        months.put( "Mar", "03" );
+        months.put( "Apr", "04" );
+        months.put( "Mai", "05" );
+        months.put( "Jun", "06" );
+        months.put( "Jul", "07" );
+        months.put( "Aug", "08" );
+        months.put( "Sep", "09" );
+        months.put( "Okt", "10" );
+        months.put( "Nov", "11" );
+        months.put( "Dez", "12" );
+    }
+
     /**
-     * for getting the tag value depending on file-type
+     * for getting the tag value
      *
      * @param currentFile the file currently processed
      * @param tags        the exif-information
      * @return the tag-value for creating the new file-name
      */
-    public abstract String getSpecificTagValue( File currentFile, Map<Integer, String> tags );
+    public String getSpecificTagValue( File currentFile, Map<Integer, String> tags ) throws IOException,
+            ParseException {
+
+        // found no tag-information
+        if( tags.isEmpty() ) {
+            this.l.debug( "    no tag-value found, return current file-name" );
+            return currentFile.getAbsolutePath();
+        }
+        else if( tags.size() == 1 ) {
+
+            this.l.debug( "    tag-value: '{}'", tags.get( 0 ) );
+            return tags.get( 0 );
+        }
+        else {
+            return getOldest( Collections.list( Collections.enumeration( tags.values() ) ) );
+        }
+    }
 
 
     public String createNewFileName( String tagValue, String absolutePath ) {
@@ -53,20 +95,22 @@ public abstract class ExifData {
     }
 
 
-    String getTagValue( Integer... tagIDs ) {
+    List<String> getTagValue( Integer... tagIDs ) {
+
+        List<String> list = new ArrayList<>();
 
         for( Integer tagID : tagIDs ) {
             if( this.tags.get( tagID ) != null ) {
-                return this.tags.get( tagID );
+                list.add( this.tags.get( tagID ) );
             }
         }
 
-        return "";
+        return list;
     }
 
     public Map<Integer, String> getTagsForCurrentFile( Iterable<Directory> directories, Integer... requiredTags ) {
 
-        List<Integer> requiredTagsList = Arrays.asList( requiredTags );
+        List<Integer> requiredTagsList = asList( requiredTags );
 
         for( Directory directory : directories ) {
 
@@ -109,5 +153,31 @@ public abstract class ExifData {
         }
 
         return completeFilename;
+    }
+
+    private String getOldest( List<String> tagValue ) throws IOException, ParseException {
+
+        List<Date> dates = new ArrayList<>();
+
+        for( String tv : tagValue ) {
+            // 2017:08:13 11:29:56
+            if( tv.startsWith( "2" ) ) {
+
+                dates.add( this.FORMAT.parse( tv.replace( ":", "" ) ) );
+            }
+            // Di Nov 07 17:53:27 +01:00 2017
+            else {
+                String[] split = tv.split( " " );
+
+                String m = months.get( split[ 1 ] );
+                if( m == null ) {
+                    throw new IOException( "could not get number for month: " + split[ 1 ] );
+                }
+
+                dates.add( this.FORMAT.parse( split[ 5 ] + m + split[ 2 ] + " " + split[ 3 ].replace( ":", "" ) ) );
+            }
+        }
+
+        return this.FORMAT.format( Collections.min( dates ) ).replace( " ", "_" );
     }
 }
