@@ -2,7 +2,6 @@ package exifdata.exif;
 
 import com.drew.metadata.Directory;
 import com.drew.metadata.Tag;
-import static java.util.Arrays.asList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +10,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class ExifData {
 
     public static final int DATE_TIME_TAKEN_JPEG = 306;
 
-    public static final int DATE_TIME_CREATED = 3;
+    public static final int DATE_TIME_IMAGE_CREATED = 3;
 
     public static final int DATE_TIME_TAKEN_IMG = 36868;
 
@@ -36,7 +36,7 @@ public class ExifData {
     static {
         months.put( "Jan", "01" );
         months.put( "Feb", "02" );
-        months.put( "Mar", "03" );
+        months.put( "Mär", "03" );
         months.put( "Apr", "04" );
         months.put( "Mai", "05" );
         months.put( "Jun", "06" );
@@ -60,13 +60,7 @@ public class ExifData {
 
         // found no tag-information
         if( tags.isEmpty() ) {
-            this.l.debug( "    no tag-value found, return current file-name" );
             return currentFile.getAbsolutePath();
-        }
-        else if( tags.size() == 1 ) {
-
-            this.l.debug( "    tag-value: '{}'", tags.get( 0 ) );
-            return tags.get( 0 );
         }
         else {
             return getOldest( Collections.list( Collections.enumeration( tags.values() ) ) );
@@ -95,22 +89,22 @@ public class ExifData {
     }
 
 
-    List<String> getTagValue( Integer... tagIDs ) {
-
-        List<String> list = new ArrayList<>();
-
-        for( Integer tagID : tagIDs ) {
-            if( this.tags.get( tagID ) != null ) {
-                list.add( this.tags.get( tagID ) );
-            }
-        }
-
-        return list;
-    }
+//    List<String> getTagValue( Integer... tagIDs ) {
+//
+//        List<String> list = new ArrayList<>();
+//
+//        for( Integer tagID : tagIDs ) {
+//            if( this.tags.get( tagID ) != null ) {
+//                list.add( this.tags.get( tagID ) );
+//            }
+//        }
+//
+//        return list;
+//    }
 
     public Map<Integer, String> getTagsForCurrentFile( Iterable<Directory> directories, Integer... requiredTags ) {
 
-        List<Integer> requiredTagsList = asList( requiredTags );
+        List<Integer> requiredTagsList = Arrays.asList( requiredTags );
 
         for( Directory directory : directories ) {
 
@@ -155,6 +149,14 @@ public class ExifData {
         return completeFilename;
     }
 
+    /**
+     * looks for the oldest date and formats it in proper format
+     *
+     * @param tagValue
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     private String getOldest( List<String> tagValue ) throws IOException, ParseException {
 
         List<Date> dates = new ArrayList<>();

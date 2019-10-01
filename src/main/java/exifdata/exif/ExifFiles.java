@@ -84,20 +84,20 @@ public class ExifFiles {
         return this.foundFileTypes;
     }
 
-    public void createOutputDir() {
-
-        String outputDirName = activeDir + "output\\";
-        l.info( "  create output-directory {}", outputDirName );
-        this.outputDir = new File( outputDirName );
-        if( !this.outputDir.exists() && !( this.outputDir.mkdir() ) ) {
-            throw new IllegalArgumentException( "could not create output-dir: " + outputDirName );
-        }
-    }
-
-    public File getOutputDir() {
-
-        return this.outputDir;
-    }
+//    public void createOutputDir() {
+//
+//        String outputDirName = activeDir + "output\\";
+//        l.info( "  create output-directory {}", outputDirName );
+//        this.outputDir = new File( outputDirName );
+//        if( !this.outputDir.exists() && !( this.outputDir.mkdir() ) ) {
+//            throw new IllegalArgumentException( "could not create output-dir: " + outputDirName );
+//        }
+//    }
+//
+//    public File getOutputDir() {
+//
+//        return this.outputDir;
+//    }
 
     public static String getActiveDir() {
 
