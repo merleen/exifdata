@@ -84,7 +84,7 @@ public class ExifData {
             newFileName = renameFileWithNumber( newFileName );
         }
 
-        this.l.info( "    new file-name: '{}'", newFileName );
+        this.l.info( "    new: '{}'", newFileName );
         return newFileName;
     }
 

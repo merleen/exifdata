@@ -47,12 +47,19 @@ public class ExifRenamer {
                     System.exit( -1 );
                 }
 
-                Map<Integer, String> tags = this.exifData.getTagsForCurrentFile( metadata.getDirectories(), requiredTypes );
+                String newFileName = "";
 
-                String specificTagValue = this.exifData.getSpecificTagValue( currentFile, tags );
-                this.l.info( specificTagValue );
-                String newFileName = this.exifData.createNewFileName( specificTagValue, currentFile.getAbsolutePath() );
-                this.l.info( newFileName );
+                if( currentFile.getName().startsWith( "IMG-" ) ) {
+                    newFileName = this.exifData.createNewFileName(
+                            currentFile.getName().substring( 4, currentFile.getName().lastIndexOf( "." ) )
+                            , currentFile.getAbsolutePath() );
+                }
+                else {
+                    Map<Integer, String> tags = this.exifData.getTagsForCurrentFile( metadata.getDirectories(), requiredTypes );
+
+                    String specificTagValue = this.exifData.getSpecificTagValue( currentFile, tags );
+                    newFileName = this.exifData.createNewFileName( specificTagValue, currentFile.getAbsolutePath() );
+                }
                 FileUtils.moveFile( currentFile, FileUtils.getFile( newFileName ) );
                 Thread.sleep( 300 );
             }
@@ -67,7 +74,7 @@ public class ExifRenamer {
     private Metadata getMetadataByType( String fileType, File currentFile ) {
 
         try {
-            if( "jpeg".equals( fileType ) || "jpg".equals( fileType ) ) {
+            if( "jpeg".equals( fileType ) || "jpg".equalsIgnoreCase( fileType ) ) {
                 return JpegMetadataReader.readMetadata( currentFile );
             }
             else if( "mp4".equals( fileType ) ) {
